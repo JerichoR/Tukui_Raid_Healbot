@@ -247,8 +247,8 @@ oUF:Factory(function(self)
         "showSolo", config.showSolo,
         
         -- grouping
-        "groupBy", "ROLE",
-        "groupingOrder", "MAINTANK,MAINASSIST,nil",
+        "groupBy", "ASSIGNEDROLE",
+        "groupingOrder", "TANK, HEALER, DAMAGER, NONE",
         
         "growth", "DOWN"
     )
