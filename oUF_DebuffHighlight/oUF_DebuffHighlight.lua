@@ -99,9 +99,25 @@ local function Update(object, event, unit)
 	local debuffType, texture  = GetDebuffType(unit, object.DebuffHighlightFilter)
 	if debuffType then
 		local color = DebuffTypeColor[debuffType]
-		object.Health:SetStatusBarColor(color.r, color.g, color.b, object.DebuffHighlightAlpha or .5)
+		if object.DebuffHighlightBackdrop then
+			object:SetBackdropColor(color.r, color.g, color.b, object.DebuffHighlightAlpha or 1)
+		elseif object.DebuffHighlightUseTexture then
+			object.DebuffHighlight:SetTexture(texture)
+		else
+			object.DebuffHighlight:SetVertexColor(color.r, color.g, color.b, object.DebuffHighlightAlpha or .5)
+		end
 	else
-		object.Health:SetStatusBarColor(.2, .2, .2, 1)
+		if object.DebuffHighlightBackdrop then
+ 			local color = origColors[object]
+ 			object:SetBackdropColor(color.r, color.g, color.b, color.a)
+ 			color = origBorderColors[object]
+ 			object:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
+ 		elseif object.DebuffHighlightUseTexture then
+			object.DebuffHighlight:SetTexture(nil)
+		else
+			local color = origColors[object]
+			object.DebuffHighlight:SetVertexColor(color.r, color.g, color.b, color.a)
+		end
 	end
 end
  

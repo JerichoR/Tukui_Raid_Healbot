@@ -75,12 +75,7 @@ function Tukui_Raid_Healbot.createPower(unit, config)
 end
 
 function Tukui_Raid_Healbot.createDebuffWatch(unit, config)
-    local dbh = unit.Health:CreateTexture(nil)
-    dbh:SetAllPoints(unit.Health:GetStatusBarTexture())
-    dbh:SetTexture(normTex)
-    dbh:SetBlendMode("BLEND")
-    dbh:SetVertexColor(0,0,0,0) -- set alpha to 0 to hide the texture
-    unit.DebuffHighlight = dbh
+	unit.DebuffHighlight = unit.Health:GetStatusBarTexture()
     unit.DebuffHighlightAlpha = 1
     unit.DebuffHighlightFilter = true
 end
@@ -97,18 +92,19 @@ function Tukui_Raid_Healbot.createAuraWatch(unit, config)
     auras.strictMatching = false
     
     auras.icons = {}
-    for sid, pos in pairs(spellIDs) do
+    for spellId, settings in pairs(spellIDs) do
         local icon = CreateFrame("Frame", nil, unit)
-        icon.spellID = sid
+        icon.spellID = spellId
         icon:SetWidth(config.width)
         icon:SetHeight(config.height)
-        icon:SetPoint(pos[1], unit, pos[1], pos[2], pos[3])
-        
+        icon:SetPoint(settings[1], unit, settings[1], settings[2], settings[3])
+        icon.anyUnit = settings[4] or nil
+		
         icon.cd = ns:newTimer(icon, {font, 12, "THINOUTLINE"}, {14, 14}, {"CENTER", "BOTTOMRIGHT", 0, 4}, 0.3, {10, 4})
         -- add function used by oUF_AuraWatch
         icon.cd.SetCooldown = function(self, starttime, duration) self:setExpiryTime(starttime + duration) end
     
-        auras.icons[sid] = icon
+        auras.icons[spellId] = icon
     end
     unit.AuraWatch = auras
 end
