@@ -1,18 +1,17 @@
-local ADDON_NAME, ns = ...
-local T, C, L, G = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales; G - Globals
+local _, ns = ...
+local T, C, L = Tukui:unpack() 
 
 ns.Tukui_Raid_Healbot = {}
-_G.Tukui_Raid_Healbot = ns.Tukui_Raid_Healbot
 
 ns.config = {
-	font = C.media.font,
-	normTex = C.media.normTex,
-	raidicons = "Interface\\AddOns\\Tukui\\medias\\textures\\raidicons.blp",
+	font = T.GetFont("Calibri"),
+	normTex = C.Medias.Normal,
+	raidicons = "Interface\\Addons\\Tukui\\Medias\\Textures\\raidicons.blp",
 	backdrop = {
-		bgFile = C.media.normTex,
-		insets = {top = -T.mult, left = -T.mult, bottom = -T.mult, right = -T.mult},
+		bgFile = C.Medias.Normal,
+		insets = {top = 0, left = 0, bottom = 0, right = 0},
 	},
-	backdropcolor = C.media.backdropcolor,
+	backdropcolor = C.Medias.BackdropColor,
 
     showPlayer = true,
     showSolo = true,
@@ -20,11 +19,10 @@ ns.config = {
     showRaid = true,
     width = 138,
     height = 41,
-	anchor = { "TOPLEFT", TukuiTarget, "TOP", 0, 450 },
+	anchor = { "TOPLEFT", UIParent, "RIGHT", -700, 0 },
     
     health = { 
 		width = 138, height=34, 
-		fontsize=12, 
 		showsmooth=true 
 	},
     power = { 

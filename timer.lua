@@ -1,4 +1,4 @@
-local ADDON_NAME, ns = ...
+local _, ns = ...
 
 -- create a new timer
 -- parent and fontname must be defined, all others get default values if not specified
@@ -12,7 +12,7 @@ local newTimer = function(self, parent, font, size, position, updatefreq, treshh
 	local new = { timerFrame = nil }
 	
 	new.parent = parent
-	new.fontname, new.fontsize, new.fontflag = unpack(font)
+	new.font = font
 	new.width, new.height = unpack(size or {14, 14})
 	new.selfanchor, new.parentanchor, new.x, new.y = unpack(position or { "CENTER", "BOTTOMRIGHT", 0, 0})
 	new.updatefreq = updatefreq or 0.3
@@ -32,7 +32,8 @@ local newTimer = function(self, parent, font, size, position, updatefreq, treshh
 			
 			
 			local timerText = newTimerFrame:CreateFontString(nil, "OVERLAY")
-			timerText:SetFont(self.fontname, self.fontsize or 12, self.fontflag or "THINOUTLINE")
+			timerText:SetFontObject(self.font)
+			timerText:SetFont(timerText:GetFont(), 12, "THINOUTLINE")
 			timerText:SetAllPoints(newTimerFrame)
 			newTimerFrame.timerText = timerText
 			

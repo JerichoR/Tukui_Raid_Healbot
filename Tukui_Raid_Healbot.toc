@@ -1,8 +1,8 @@
-## Interface: 50400
+## Interface: 70300
 ## Title: |cffC495DDTukui|r |cffffd200Raid Healbot|r
 ## Notes: Raidframe layout for healers inspired by Healbot.
 ## Author: JerichoR
-## Version: 1.2
+## Version: 1.3
 ## X-Category: UnitFrame
 ## RequiredDeps: Tukui
 

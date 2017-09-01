@@ -1,14 +1,16 @@
-local ADDON_NAME, ns = ...
-local oUF = oUFTukui or oUF
+local oUF = Tukui.oUF or oUF
 assert(oUF, "Tukui was unable to locate oUF install.")
 
-local T, C, L, G = unpack(Tukui) -- Import: T - functions, constants, variables; C - config; L - locales; G - Globals
+local _, ns = ...
+local T, C, L = Tukui:unpack() 
+local TukuiUnitFrames = T.UnitFrames
 
 local Tukui_Raid_Healbot = ns.Tukui_Raid_Healbot
 
 local config = ns.config
 local font = config.font
 local normTex = config.normTex
+local Class = select(2, UnitClass("player"))
 
 function Tukui_Raid_Healbot.createHealth(unit, config)
     local health = CreateFrame("StatusBar", nil, unit)
@@ -25,12 +27,12 @@ function Tukui_Raid_Healbot.createHealth(unit, config)
     
     local name = health:CreateFontString(nil, "OVERLAY")
     name:SetPoint("TOP", health, 0, -2)
-    name:SetFont(font, config.fontsize)
-    unit:Tag(name, "[Tukui:getnamecolor][Tukui:nameshort]")
-    
+    name:SetFontObject(font)
+    unit:Tag(name, "[Tukui:GetNameColor][Tukui:NameShort]")
+
     local value = health:CreateFontString(nil, "OVERLAY")
     value:SetPoint("BOTTOM", health, 0, 2)
-    value:SetFont(font, config.fontsize, nil)
+    value:SetFontObject(font)
     value:SetTextColor(1, 1, 1)
     
     health.colorHappiness = false
@@ -82,7 +84,7 @@ end
 
 function Tukui_Raid_Healbot.createAuraWatch(unit, config)
     local auras = {}
-    local spellIDs = ns.auras[T.myclass]
+    local spellIDs = ns.auras[Class]
     
     if not spellIDs then return end
     
@@ -95,12 +97,11 @@ function Tukui_Raid_Healbot.createAuraWatch(unit, config)
     for spellId, settings in pairs(spellIDs) do
         local icon = CreateFrame("Frame", nil, unit)
         icon.spellID = spellId
-        icon:SetWidth(config.width)
-        icon:SetHeight(config.height)
+        icon:SetSize(config.width, config.height)
         icon:SetPoint(settings[1], unit, settings[1], settings[2], settings[3])
         icon.anyUnit = settings[4] or nil
 		
-        icon.cd = ns:newTimer(icon, {font, 12, "THINOUTLINE"}, {14, 14}, {"CENTER", "BOTTOMRIGHT", 0, 4}, 0.3, {10, 4})
+        icon.cd = ns:newTimer(icon, font, {14, 14}, {"CENTER", "BOTTOMRIGHT", 0, 4}, 0.3, {10, 4})
         -- add function used by oUF_AuraWatch
         icon.cd.SetCooldown = function(self, starttime, duration) self:setExpiryTime(starttime + duration) end
     
@@ -111,8 +112,7 @@ end
 
 function Tukui_Raid_Healbot.createRaidIconWatch(unit, config)
     local RaidIcon = unit.Health:CreateTexture(nil, "OVERLAY")
-    RaidIcon:Height(config.height)
-    RaidIcon:Width(config.width)
+    RaidIcon:SetSize(config.width, config.height)
     RaidIcon:SetPoint(config.anchor)
     RaidIcon:SetTexture(config.raidicons) -- thx hankthetank for texture
     unit.RaidIcon = RaidIcon
@@ -120,61 +120,64 @@ end
 
 function Tukui_Raid_Healbot.createReadyCheckWatch(unit, config)
     local ReadyCheck = unit.Power:CreateTexture(nil, "OVERLAY")
-    ReadyCheck:Height(config.height)
-    ReadyCheck:Width(config.width)
+    ReadyCheck:SetSize(config.width, config.height)
     ReadyCheck:SetPoint(config.anchor)     
     unit.ReadyCheck = ReadyCheck
 end
 
 function Tukui_Raid_Healbot.createHealcomm(unit, config)
-    local mhpb = CreateFrame("StatusBar", nil, unit.Health)
-    mhpb:SetPoint("TOPLEFT", unit.Health:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
-    mhpb:SetPoint("BOTTOMLEFT", unit.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-    mhpb:Width(config.width)
-    mhpb:SetStatusBarTexture(normTex)
-    mhpb:SetStatusBarColor(0, 1, 0.5, 0.25)
+    local myHealBar = CreateFrame("StatusBar", nil, unit.Health)
+    myHealBar:SetSize(config.width, config.height)
+    myHealBar:SetPoint("LEFT", unit.Health:GetStatusBarTexture(), "RIGHT", 0, 0)
+    myHealBar:SetStatusBarTexture(normTex)
+    myHealBar:SetStatusBarColor(0, 1, 0.5, 0.25)
 
-    local ohpb = CreateFrame("StatusBar", nil, unit.Health)
-    ohpb:SetPoint("TOPLEFT", unit.Health:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
-    ohpb:SetPoint("BOTTOMLEFT", unit.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-    ohpb:Width(config.width)
-    ohpb:SetStatusBarTexture(normTex)
-    ohpb:SetStatusBarColor(0, 1, 0, 0.25)
+    local othersHealBar = CreateFrame("StatusBar", nil, unit.Health)
+    othersHealBar:SetSize(config.width, config.height)
+    othersHealBar:SetPoint("LEFT", unit.Health:GetStatusBarTexture(), "RIGHT", 0, 0)
+    othersHealBar:SetStatusBarTexture(normTex)
+    othersHealBar:SetStatusBarColor(0, 1, 0, 0.25)
 
-    local absb = CreateFrame("StatusBar", nil, unit.Health)
-    absb:SetPoint("TOPLEFT", unit.Health:GetStatusBarTexture(), "TOPRIGHT", 0, 0)
-    absb:SetPoint("BOTTOMLEFT", unit.Health:GetStatusBarTexture(), "BOTTOMRIGHT", 0, 0)
-    absb:Width(config.width)
-    absb:SetStatusBarTexture(normTex)
-    absb:SetStatusBarColor(0, 1, 1, 0.25)
+    local absorbBar = CreateFrame("StatusBar", nil, unit.Health)
+    absorbBar:SetSize(config.width, config.height)
+    absorbBar:SetPoint("LEFT", unit.Health:GetStatusBarTexture(), "RIGHT", 0, 0)
+    absorbBar:SetStatusBarTexture(normTex)
+    absorbBar:SetStatusBarColor(0, 1, 1, 0.25)
+
+    local healAbsorbBar = CreateFrame("StatusBar", nil, unit.Health)
+    healAbsorbBar:SetSize(config.width, config.height)
+    healAbsorbBar:SetPoint("LEFT", unit.Health:GetStatusBarTexture(), "RIGHT", 0, 0)
+    healAbsorbBar:SetStatusBarTexture(normTex)
+    healAbsorbBar:SetStatusBarColor(0.8, 0.52, 0.25, 0.25)
     
-    absb:SetFrameLevel(unit.Health:GetFrameLevel())
-    ohpb:SetFrameLevel(absb:GetFrameLevel() + 1)
-    mhpb:SetFrameLevel(absb:GetFrameLevel() + 2)
+    absorbBar:SetFrameLevel(unit.Health:GetFrameLevel())
+    othersHealBar:SetFrameLevel(absorbBar:GetFrameLevel() + 1)
+    myHealBar:SetFrameLevel(absorbBar:GetFrameLevel() + 2)
+    healAbsorbBar:SetFrameLevel(absorbBar:GetFrameLevel() + 3)
     
     unit.HealPrediction = {
-        myBar = mhpb,
-        otherBar = ohpb,
-        absBar = absb,
+        myBar = myHealBar,
+        otherBar = othersHealBar,
+        absorbBar = absorbBar,
+        healAbsorbBar = healAbsorbBar,
         maxOverflow = 1,
     }
 end
 
 function Tukui_Raid_Healbot.createRoleIconWatch(unit, config)
     local RoleIcon = unit.Health:CreateTexture(nil, "OVERLAY")
-    RoleIcon:Height(config.height)
-    RoleIcon:Width(config.width)
+    RoleIcon:SetSize(config.width, config.height)
     RoleIcon:SetPoint(config.anchor)     
     unit.LFDRole = RoleIcon
 end
 
-function Tukui_Raid_Healbot.Shared(unitframe, unit) 
-    unitframe.colors = T.oUF_colors
+function Tukui_Raid_Healbot.Raid(unitframe, unit) 
+    unitframe.colors = oUF.oUF_colors
     unitframe:RegisterForClicks("AnyUp")
     unitframe:SetScript('OnEnter', UnitFrame_OnEnter)
     unitframe:SetScript('OnLeave', UnitFrame_OnLeave)
     
-    unitframe.menu = T.SpawnMenu
+    unitframe.menu = oUF.SpawnMenu
     
     unitframe:SetBackdrop(config.backdrop)
     unitframe:SetBackdropColor(unpack(config.backdropcolor))
@@ -191,18 +194,20 @@ function Tukui_Raid_Healbot.Shared(unitframe, unit)
     
     unitframe.Range = config.range
     
-    if Tukui_Raid_Healbot.unitspecific[T.myclass] then
-        Tukui_Raid_Healbot.unitspecific[T.myclass](unitframe)
+    if Tukui_Raid_Healbot.unitspecific[Class] then
+        Tukui_Raid_Healbot.unitspecific[Class](unitframe)
     end
     
     return unitframe
 end
 
-oUF:RegisterStyle('TukuiJericho', Tukui_Raid_Healbot.Shared)
-oUF:Factory(function(self)
-    oUF:SetActiveStyle("TukuiJericho")    
-    
-    local raid = self:SpawnHeader("TukuiGrid", nil, "raid,party,solo",
+TukuiUnitFrames.Raid = Tukui_Raid_Healbot.Raid
+
+function TukuiUnitFrames:GetRaidFramesAttributes()
+    return 
+        "Tukui_Raid_Healbot",
+        nil, 
+        "raid,party,solo",
         'oUF-initialConfigFunction', [[
             local header = self:GetParent()
             self:SetWidth(header:GetAttribute('initial-width'))
@@ -210,11 +215,11 @@ oUF:Factory(function(self)
         ]],
         -- attributes
         "point", "TOP",
-        "xoffset", T.Scale(3),
-        "yOffset", T.Scale(-3),
+        "xoffset", 3,
+        "yOffset", -3,
         "maxColumns", 5,
         "unitsPerColumn", 5,
-        "columnSpacing", T.Scale(3),
+        "columnSpacing", 3,
         "columnAnchorPoint", "LEFT",
         'initial-width', config.width,
         'initial-height', config.height,
@@ -230,6 +235,12 @@ oUF:Factory(function(self)
         "groupingOrder", "TANK, HEALER, DAMAGER, NONE",
         
         "growth", "DOWN"
-    )
-    raid:SetPoint(unpack(config.anchor))
-end)
+end
+
+local function CreateUnits()
+    local Raid = TukuiUnitFrames.Headers.Raid
+    Raid:ClearAllPoints()
+    Raid:SetPoint(unpack(config.anchor))
+end
+
+hooksecurefunc(TukuiUnitFrames, "CreateUnits", CreateUnits)

@@ -1,11 +1,6 @@
-local ADDON_NAME, ns = ...
+local _, ns = ...
+local T, C, L = Tukui:unpack() 
 local config = ns.config
-
-ns.Tukui_Raid_Healbot.ShortValue = function(value)
-    if value >= 1000000 then return ("%.1fm"):format(value / 1000000):gsub("%.?0+([km])$", "%1") end
-    if value >= 1000 or value <= -1000 then return ("%.1fk"):format(value / 1000):gsub("%.?0+([km])$", "%1") end
-    return value
-end
 
 ns.Tukui_Raid_Healbot.PostUpdateHealth = function(health, unit, min, max)
     if not UnitIsConnected(unit) then
@@ -19,7 +14,7 @@ ns.Tukui_Raid_Healbot.PostUpdateHealth = function(health, unit, min, max)
         return
     end
     
-    health.value:SetText(ns.Tukui_Raid_Healbot.ShortValue(min))
+    health.value:SetText(T.ShortValue(min))
 end
 
 ns.Tukui_Raid_Healbot.PostCreateIcon = function(AuraWatchTable, spellFrame, spellID, spellName, unit)
@@ -30,12 +25,12 @@ end
 
 ns.Tukui_Raid_Healbot.unitspecific = {}
 ns.Tukui_Raid_Healbot.unitspecific.PRIEST = function(unitframe)
-    local ws = CreateFrame("StatusBar", unitframe:GetName().."_WeakenedSoul", unitframe.Power)
+    local ws = CreateFrame("StatusBar", nil, unitframe.Power)
     ws:SetAllPoints(unitframe.Power)
     ws:SetStatusBarTexture(config.normTex)
     ws:SetBackdrop(config.backdrop)
     ws:SetBackdropColor(unpack(ns.config.backdropcolor))
-    ws:SetStatusBarColor(191/255, 10/255, 10/255)
+    ws:SetStatusBarColor(0.75, 0.04, 0.04)
     
     unitframe.WeakenedSoul = ws
 end
