@@ -24,13 +24,3 @@ ns.Tukui_Raid_Healbot.PostCreateIcon = function(AuraWatchTable, spellFrame, spel
 end
 
 ns.Tukui_Raid_Healbot.unitspecific = {}
-ns.Tukui_Raid_Healbot.unitspecific.PRIEST = function(unitframe)
-    local ws = CreateFrame("StatusBar", nil, unitframe.Power)
-    ws:SetAllPoints(unitframe.Power)
-    ws:SetStatusBarTexture(config.normTex)
-    ws:SetBackdrop(config.backdrop)
-    ws:SetBackdropColor(unpack(ns.config.backdropcolor))
-    ws:SetStatusBarColor(0.75, 0.04, 0.04)
-    
-    unitframe.WeakenedSoul = ws
-end

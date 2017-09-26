@@ -7,21 +7,10 @@ local CanDispel = {
 	PRIEST = { Magic = true, Disease = true },
 	SHAMAN = { Magic = false, Curse = true },
 	PALADIN = { Magic = false, Poison = true, Disease = true },
-	MAGE = { Curse = true },
-	DRUID = { Magic = false, Curse = true, Poison = true, Disease = false },
+	DRUID = { Magic = false, Curse = true, Poison = true },
 	MONK = { Magic = false, Poison = true, Disease = true }
 }
 
-local blackList = {
-	[GetSpellInfo(140546)] = true, --Fully Mutated
-	[GetSpellInfo(136184)] = true, --Thick Bones
-	[GetSpellInfo(136186)] = true, --Clear mind
-	[GetSpellInfo(136182)] = true, --Improved Synapses
-	[GetSpellInfo(136180)] = true, --Keen Eyesight
-}
-
-local SymbiosisName = GetSpellInfo(110309)
-local CleanseName = GetSpellInfo(4987)
 local dispellist = CanDispel[playerClass] or {}
 local origColors = {}
 local origBorderColors = {}
@@ -52,47 +41,17 @@ local function CheckSpec(self, event, levels)
 	if event == "CHARACTER_POINTS_CHANGED" and levels > 0 then return end
 
 	--Check for certain talents to see if we can dispel magic or not
-	if playerClass == "PRIEST" then
-		if CheckTalentTree(3) then
-			dispellist.Disease = false
-		else
-			dispellist.Disease = true	
-		end		
-	elseif playerClass == "PALADIN" then
-		if CheckTalentTree(1) then
-			dispellist.Magic = true
-		else
-			dispellist.Magic = false	
-		end
-	elseif playerClass == "SHAMAN" then
-		if CheckTalentTree(3) then
-			dispellist.Magic = true
-		else
-			dispellist.Magic = false	
-		end
-	elseif playerClass == "DRUID" then
-		if CheckTalentTree(4) then
-			dispellist.Magic = true
-		else
-			dispellist.Magic = false	
-		end
-	elseif playerClass == "MONK" then
-		if CheckTalentTree(2) then
-			dispellist.Magic = true
-		else
-			dispellist.Magic = false	
-		end		
+	local spec = SPEC_CORE_ABILITY_TEXT[GetSpecializationInfo(GetSpecialization())]
+	if spec == "PALADIN_HOLY"
+			or spec == "SHAMAN_RESTO"
+			or spec == "DRUID_RESTO"
+			or spec == "MONK_MIST" then
+		dispellist.Magic = true
+	else
+		dispellist.Magic = false
 	end
 end
 
-local function CheckSymbiosis()
-	if GetSpellInfo(SymbiosisName) == CleanseName then
-		dispellist.Disease = true
-	else
-		dispellist.Disease = false
-	end
-end
- 
 local function Update(object, event, unit)
 	if unit ~= object.unit then return; end
 
@@ -138,9 +97,6 @@ local function Enable(object)
 	CheckSpec(object)
 
 	object:RegisterUnitEvent("UNIT_AURA", object.unit)
-	if playerClass == "DRUID" then
-		object:RegisterEvent("SPELLS_CHANGED", CheckSymbiosis)
-	end
 
 	if object.DebuffHighlightBackdrop then
 		local r, g, b, a = object:GetBackdropColor()
@@ -159,10 +115,6 @@ local function Disable(object)
 	object:UnregisterEvent("UNIT_AURA", Update)
 	object:UnregisterEvent("PLAYER_TALENT_UPDATE", CheckSpec)
 	object:UnregisterEvent("CHARACTER_POINTS_CHANGED", CheckSpec)
-
-	if playerClass == "DRUID" then
-		object:UnregisterEvent("SPELLS_CHANGED", CheckSymbiosis)
-	end
 
 	if object.DebuffHighlightBackdrop then
 		local color = origColors[object]
