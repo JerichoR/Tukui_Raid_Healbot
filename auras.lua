@@ -8,7 +8,7 @@ ns.auras = {
         [81749]  = { "BOTTOMRIGHT", -2, 9 }, -- Atonement
     },
     PALADIN = {
-		[114163] = { "TOPRIGHT", -2, -2 },   -- Eternal Flame
+		[53563] = { "TOPRIGHT", -2, -2 },   -- Beacon of Light
         [223306] = { "BOTTOMRIGHT", -2, 9 },   -- Bestow Faith
     },
 }

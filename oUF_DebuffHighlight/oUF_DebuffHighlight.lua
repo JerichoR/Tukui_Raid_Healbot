@@ -1,6 +1,6 @@
 local _, ns = ...
-local oUF = oUFTukui or oUF
-if not oUF then return end
+local oUF = Tukui.oUF or oUF
+assert(oUF, 'oUF DebuffHighlight: unable to locate oUF')
  
 local playerClass = select(2,UnitClass("player"))
 local CanDispel = {
@@ -15,7 +15,9 @@ local dispellist = CanDispel[playerClass] or {}
 local origColors = {}
 local origBorderColors = {}
 local origPostUpdateAura = {}
- 
+
+local blackList = {}
+
 local function GetDebuffType(unit, filter)
 	if not unit or not UnitCanAssist("player", unit) then return nil end
 	local i = 1
@@ -29,26 +31,20 @@ local function GetDebuffType(unit, filter)
 	end
 end
 
-local function CheckTalentTree(tree)
-	local activeGroup = GetActiveSpecGroup()
-	if activeGroup and GetSpecialization(false, false, activeGroup) then
-		return tree == GetSpecialization(false, false, activeGroup)
-	end
-end
- 
 local function CheckSpec(self, event, levels)
 	-- Not interested in gained points from leveling
 	if event == "CHARACTER_POINTS_CHANGED" and levels > 0 then return end
 
 	--Check for certain talents to see if we can dispel magic or not
-	local spec = SPEC_CORE_ABILITY_TEXT[GetSpecializationInfo(GetSpecialization())]
-	if spec == "PALADIN_HOLY"
-			or spec == "SHAMAN_RESTO"
-			or spec == "DRUID_RESTO"
-			or spec == "MONK_MIST" then
+	local id, spec = GetSpecializationInfo(GetSpecialization())
+	if playerClass == "PALADIN" and spec == "Holy" then
 		dispellist.Magic = true
-	else
-		dispellist.Magic = false
+	elseif playerClass == "SHAMAN" and spec == "Restoration" then
+		dispellist.Magic = true
+	elseif playerClass == "DRUID" and spec == "Restoration" then
+		dispellist.Magic = true
+	elseif playerClass == "MONK" and spec == "Mistwalker" then
+		dispellist.Magic = true
 	end
 end
 
@@ -85,18 +81,19 @@ local function Enable(object)
 	if not object.DebuffHighlightBackdrop and not object.DebuffHighlight then
 		return
 	end
+
 	-- if we're filtering highlights and we're not of the dispelling type, return
 	if object.DebuffHighlightFilter and not CanDispel[playerClass] then
 		return
 	end
- 
+
 	-- make sure aura scanning is active for this object
 	object:RegisterEvent("UNIT_AURA", Update)
+	object:RegisterUnitEvent("UNIT_AURA", object.unit)
+
 	object:RegisterEvent("PLAYER_TALENT_UPDATE", CheckSpec)
 	object:RegisterEvent("CHARACTER_POINTS_CHANGED", CheckSpec)
 	CheckSpec(object)
-
-	object:RegisterUnitEvent("UNIT_AURA", object.unit)
 
 	if object.DebuffHighlightBackdrop then
 		local r, g, b, a = object:GetBackdropColor()
